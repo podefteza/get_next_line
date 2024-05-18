@@ -6,28 +6,111 @@
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:53:37 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/14 18:14:23 by carlos-j         ###   ########.fr       */
+/*   Updated: 2024/05/18 11:56:13 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// use only one static funcion to bonus
 #include "get_next_line.h"
+
+char	*resize_buffer(char *buffer, int old_size, int new_size)
+{
+	char	*new_buffer;
+	int		i;
+
+	new_buffer = (char *)malloc(new_size * sizeof(char));
+	if (!new_buffer)
+	{
+		free(buffer);
+		return (NULL);
+	}
+	i = 0;
+	while (i < old_size)
+	{
+		new_buffer[i] = buffer[i];
+		i++;
+	}
+	free(buffer);
+	return (new_buffer);
+}
+
+int	read_and_store(int fd, char **line, int *size, int *len)
+{
+	char	buffer;
+	int		read_bytes;
+
+	read_bytes = read(fd, &buffer, 1);
+	while (read_bytes > 0)
+	{
+		(*line)[(*len)++] = buffer;
+		if (buffer == '\n')
+			break ;
+		if (*len >= *size)
+		{
+			*size *= 2;
+			*line = resize_buffer(*line, *len, *size);
+			if (*line == NULL)
+				return (-1);
+		}
+		read_bytes = read(fd, &buffer, 1);
+	}
+	return (read_bytes);
+}
 
 char	*get_next_line(int fd)
 {
+	char	*line;
+	int		size;
+	int		len;
+	int		read_bytes;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	size = BUFFER_SIZE;
+	line = (char *)malloc((size + 1) * sizeof(char));
+	if (line == NULL)
+		return (NULL);
+	len = 0;
+	read_bytes = read_and_store(fd, &line, &size, &len);
+	if (read_bytes < 0 || (read_bytes == 0 && len == 0))
+	{
+		free(line);
+		return (NULL);
+	}
+	line[len] = '\0';
+	return (line);
 }
 
-// read, malloc, free
-/*Read line: correct behavior
-NULL: there is nothing else to read, or an error
-occurred*/
+/* ===== MAIN FOR TESTING... =====
 
-/*Read Byte by Byte and check that each byte against '\n' if it is not, then store it into buffer
-if it is '\n' add '\0' to buffer and then use atoi()
+int	main(void)
+{
+	int		fd;
+	char	*line;
 
-You can read a single byte like this
+	fd = open("cat.txt", O_RDONLY);
+	if (fd < 0)
+	{
+		perror("Error opening file");
+		return (1);
+	}
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("%s\n", line);
+		free(line);
+	}
+	close(fd);
+	return (0);
+}*/
 
-char c;
-read(fd,&c,1);*/
-/*cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 <files>.c*/
+/* ===== test.txt FOR TESTING... =====
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+Praesent scelerisque at nunc non ornare.
+
+Nullam eget tempus lacus. Lorem ipsum dolor sit amet,
+consectetur adipiscing elit.
+
+Pellentesque habitant morbi tristique senectus et netus
+et malesuada fames ac turpis egestas.
+
+Sed at mi. */
