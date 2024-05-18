@@ -19,7 +19,10 @@ char	*resize_buffer(char *buffer, int old_size, int new_size)
 
 	new_buffer = (char *)malloc(new_size * sizeof(char));
 	if (new_buffer == NULL)
+	{
+		free(buffer);
 		return (NULL);
+	}
 	i = 0;
 	while (i < old_size)
 	{

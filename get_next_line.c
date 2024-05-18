@@ -29,7 +29,10 @@ int	read_and_store(int fd, char **line, int *size, int *len)
 			*size *= 2;
 			*line = resize_buffer(*line, *len, *size);
 			if (*line == NULL)
+			{
+				free (*line);
 				return (-1);
+			}
 		}
 		read_bytes = read(fd, &buffer, 1);
 	}
