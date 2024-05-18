@@ -6,7 +6,7 @@
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:53:40 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/18 11:21:30 by carlos-j         ###   ########.fr       */
+/*   Updated: 2024/05/18 13:05:02 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,8 @@
 #  define BUFFER_SIZE 42
 # endif
 
-char	*resize_buffer(char *buffer, int old_size, int new_size);
 int		read_and_store(int fd, char **line, int *size, int *len);
 char	*get_next_line(int fd);
-int		ft_strlen(char *s);
-char	*ft_strdup(char *s);
+char	*resize_buffer(char *buffer, int old_size, int new_size);
 
 #endif

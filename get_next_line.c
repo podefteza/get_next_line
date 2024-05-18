@@ -6,32 +6,11 @@
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:53:37 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/18 11:56:13 by carlos-j         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:59:04 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-char	*resize_buffer(char *buffer, int old_size, int new_size)
-{
-	char	*new_buffer;
-	int		i;
-
-	new_buffer = (char *)malloc(new_size * sizeof(char));
-	if (!new_buffer)
-	{
-		free(buffer);
-		return (NULL);
-	}
-	i = 0;
-	while (i < old_size)
-	{
-		new_buffer[i] = buffer[i];
-		i++;
-	}
-	free(buffer);
-	return (new_buffer);
-}
 
 int	read_and_store(int fd, char **line, int *size, int *len)
 {
@@ -41,7 +20,8 @@ int	read_and_store(int fd, char **line, int *size, int *len)
 	read_bytes = read(fd, &buffer, 1);
 	while (read_bytes > 0)
 	{
-		(*line)[(*len)++] = buffer;
+		(*line)[(*len)] = buffer;
+		(*len)++;
 		if (buffer == '\n')
 			break ;
 		if (*len >= *size)
@@ -79,7 +59,6 @@ char	*get_next_line(int fd)
 	line[len] = '\0';
 	return (line);
 }
-
 /* ===== MAIN FOR TESTING... =====
 
 int	main(void)
@@ -101,16 +80,41 @@ int	main(void)
 	close(fd);
 	return (0);
 }*/
+/*Variables:
+> line: current line being read;
+> size: current allocated size for the line buffer;
+> len: current length of the line being read (position in the line);
+> read_bytes: number of bytes read each time the function is called (0 or 1);
 
-/* ===== test.txt FOR TESTING... =====
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Implementation:
+> Checks if the file descriptor (fd) is invalid or if BUFFER_SIZE is <= 0. If so,
+	returns NULL.
+> Sets the value of size to BUFFER_SIZE.
+> Allocates memory for the line buffer with an initial size of BUFFER_SIZE
+	+ 1 to accommodate the characters read.
+> If allocation fails, returns NULL.
+> Calls the function read_and_store:
+	> Reads one character at a time, storing it in the line buffer,
+		and increments the len index each time.
+	> The read function returns the number of bytes read. If it returns 0,
+		no bytes were read (end of file).
+	> While any bytes are read,
+		it assigns the value of line[len] to that character.
+	> If the character is '\n', it breaks the loop,
+		indicating the end of the line.
+	> If len reaches the current size of the buffer,
+		it "requests" more space for the next character:
+		> Doubles the size by calling the resize_buffer function
+			to allocate more space.
+		> Creates a new buffer,
+			copies the characters from the old buffer to the new buffer,
+			and frees the old buffer.
+	> Continues reading the next byte.
+	> Keeps reading until read_bytes is 0 (end of file,
+		no bytes to read) or a newline character is encountered.
 
-Praesent scelerisque at nunc non ornare.
-
-Nullam eget tempus lacus. Lorem ipsum dolor sit amet,
-consectetur adipiscing elit.
-
-Pellentesque habitant morbi tristique senectus et netus
-et malesuada fames ac turpis egestas.
-
-Sed at mi. */
+> When no more bytes are read or it reaches the last position of the buffer,
+	it terminates the line with '\0'.
+> If no characters were read and the end of the file is reached (len is 0),
+	it frees the line and returns NULL.
+> Otherwise, it returns the line that was read. */
