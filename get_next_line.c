@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+ /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
@@ -17,7 +17,7 @@ int	read_and_store(int fd, char **line, int *size, int *len)
 	char	buffer;
 	int		read_bytes;
 
-	read_bytes = read(fd, &buffer, 1);
+	read_bytes = read(fd, &buffer, BUFFER_SIZE);
 	while (read_bytes > 0)
 	{
 		(*line)[(*len)] = buffer;
@@ -34,7 +34,7 @@ int	read_and_store(int fd, char **line, int *size, int *len)
 				return (-1);
 			}
 		}
-		read_bytes = read(fd, &buffer, 1);
+		read_bytes = read(fd, &buffer, BUFFER_SIZE);
 	}
 	return (read_bytes);
 }
@@ -46,7 +46,7 @@ char	*get_next_line(int fd)
 	int		len;
 	int		read_bytes;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE  <= 0)
 		return (NULL);
 	size = BUFFER_SIZE;
 	line = (char *)malloc((size + 1) * sizeof(char));
