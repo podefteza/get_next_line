@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/14 16:53:37 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/28 21:27:51 by carlos-j         ###   ########.fr       */
+/*   Created: 2024/05/28 19:46:11 by carlos-j          #+#    #+#             */
+/*   Updated: 2024/05/28 21:55:37 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*get_line_from_buffer(char **buffer, int *newline_index)
 {
@@ -103,62 +103,35 @@ static int	read_and_append(int fd, char **buffer)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
+	static char	*buffer[1042];
 	int			newline_index;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd >= 1042 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (buffer == NULL)
+	if (buffer[fd] == NULL)
 	{
-		buffer = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
-		if (buffer == NULL)
+		buffer[fd] = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+		if (buffer[fd] == NULL)
 			return (NULL);
-		buffer[0] = '\0';
+		buffer[fd][0] = '\0';
 	}
-	if (read_and_append(fd, &buffer) == -1)
+	if (read_and_append(fd, &buffer[fd]) == -1)
 		return (NULL);
-	if (buffer == NULL || buffer[0] == '\0')
+	if (buffer[fd][0] == '\0')
 	{
-		free(buffer);
-		buffer = NULL;
+		free(buffer[fd]);
+		buffer[fd] = NULL;
 		return (NULL);
 	}
-	line = get_line_from_buffer(&buffer, &newline_index);
-	update_buffer(&buffer, newline_index);
+	line = get_line_from_buffer(&buffer[fd], &newline_index);
+	update_buffer(&buffer[fd], newline_index);
 	return (line);
 }
-
 /*
-======== Variables ========
-> buffer: stores the data read from the fd;
-> newline_index: index of the \n character in the buffer (for splitting lines);
-> line: line currently being read and returned by the function;
-> i: index variable used for iterating through the buffer;
-> line_length: length of the line being read,
-	including the \n character if it exists;
-> temp_buf: temporary buffer used for reading data from the fd;
-> bytes_read: number of bytes read from the fd in each read operation.
-
-======== Implementation ========
-> Checks if the fd is valid and if BUFFER_SIZE is greater than 0. If not,
-	returns NULL;
-> Initializes the static buffer 'buffer' if it's not already initialized,
-	allocating memory for it;
-> Calls the read_and_append function:
-	> Reads data from the fd into the temporary buffer 'temp_buf' until a
-		\n character is encountered in the 'buffer';
-	> If an error occurs during reading or memory allocation,
-		handles the error and returns -1;
-	> Appends the data from 'temp_buf' to the end of 'buffer' using ft_strjoin;
-> Checks if 'buffer' is empty or NULL after reading and appending data. If so,
-	frees the buffer and returns NULL;
-> Extracts a line from 'buffer' using the get_line_from_buffer function:
-	> Finds the index of the \n character in 'buffer';
-	> Allocates memory for 'line' and copies the characters from 'buffer'
-		up to the \n character, if present;
-> Updates 'buffer' to remove the read line using the update_buffer function:
-	> Shifts the contents of 'buffer' to remove the read line and updates
-		'buffer' with the new content;
-> Returns the extracted line read from the fd.
+> The bonus version let's the program work with multiple fds at the same time;
+> Instead of one static buffer for all fds, it uses an array of buffers, indexed
+	by the fd number. This way we can work on each fd separately;
+> We give it a size of 1042, the maximum number of open files simultaneously
+	per process in Linux;
 */
