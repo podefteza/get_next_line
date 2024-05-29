@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+ /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
@@ -40,65 +40,29 @@ static char	*get_line_from_buffer(char **buffer, int *newline_index)
 
 static void	update_buffer(char **buffer, int newline_index)
 {
-	char	*new_buffer;
-	int		i;
-	int		j;
+	char	buffer;
+	int		read_bytes;
 
-	i = 0;
-	j = newline_index;
-	while ((*buffer)[j])
+	read_bytes = read(fd, &buffer, 1);
+	while (read_bytes > 0)
 	{
-		(*buffer)[i] = (*buffer)[j];
-		i++;
-		j++;
-	}
-	(*buffer)[i] = '\0';
-	new_buffer = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
-	if (new_buffer == NULL)
-		return ;
-	i = 0;
-	while ((*buffer)[i])
-	{
-		new_buffer[i] = (*buffer)[i];
-		i++;
-	}
-	free(*buffer);
-	*buffer = new_buffer;
-}
-
-static int	handle_read_error(char **buffer, char *temp_buf)
-{
-	free(temp_buf);
-	free(*buffer);
-	*buffer = NULL;
-	return (-1);
-}
-
-static int	read_and_append(int fd, char **buffer)
-{
-	char	*temp_buf;
-	int		bytes_read;
-
-	temp_buf = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
-	if (temp_buf == NULL)
-		return (-1);
-	while (ft_strchr(*buffer, '\n') == NULL)
-	{
-		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
-		if (bytes_read == -1)
-			return (handle_read_error(buffer, temp_buf));
-		if (bytes_read == 0)
+		(*line)[(*len)] = buffer;
+		(*len)++;
+		if (buffer == '\n')
 			break ;
-		temp_buf[bytes_read] = '\0';
-		*buffer = ft_strjoin(*buffer, temp_buf);
-		if (*buffer == NULL)
+		if (*len >= *size)
 		{
-			free(temp_buf);
-			return (-1);
+			*size *= 2;
+			*line = resize_buffer(*line, *len, *size);
+			if (*line == NULL)
+			{
+				free (*line);
+				return (-1);
+			}
 		}
+		read_bytes = read(fd, &buffer, 1);
 	}
-	free(temp_buf);
-	return (0);
+	return (read_bytes);
 }
 
 char	*get_next_line(int fd)
@@ -107,7 +71,7 @@ char	*get_next_line(int fd)
 	int			newline_index;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE  <= 0)
 		return (NULL);
 	if (buffer == NULL)
 	{
