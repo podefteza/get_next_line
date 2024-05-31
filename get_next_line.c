@@ -6,7 +6,7 @@
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:53:37 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/31 13:00:25 by carlos-j         ###   ########.fr       */
+/*   Updated: 2024/05/31 13:10:49 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,4 +166,10 @@ char	*get_next_line(int fd)
 		'buffer' with the new content;
 
 > Returns the extracted line read from the fd.
+
+======== Testing ========
+> For testing purposes I used:
+    <> gnl-station-tester by kodpe;
+	<> gnlTester by Tripouille;
+	<> francinette by  xicodomingues;
 */
