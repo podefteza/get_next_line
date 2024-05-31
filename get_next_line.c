@@ -1,4 +1,4 @@
- /* ************************************************************************** */
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
@@ -6,7 +6,7 @@
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:53:37 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/28 21:27:51 by carlos-j         ###   ########.fr       */
+/*   Updated: 2024/05/31 13:00:25 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,29 +40,65 @@ static char	*get_line_from_buffer(char **buffer, int *newline_index)
 
 static void	update_buffer(char **buffer, int newline_index)
 {
-	char	buffer;
-	int		read_bytes;
+	char	*new_buffer;
+	int		i;
+	int		j;
 
-	read_bytes = read(fd, &buffer, 1);
-	while (read_bytes > 0)
+	i = 0;
+	j = newline_index;
+	while ((*buffer)[j])
 	{
-		(*line)[(*len)] = buffer;
-		(*len)++;
-		if (buffer == '\n')
-			break ;
-		if (*len >= *size)
-		{
-			*size *= 2;
-			*line = resize_buffer(*line, *len, *size);
-			if (*line == NULL)
-			{
-				free (*line);
-				return (-1);
-			}
-		}
-		read_bytes = read(fd, &buffer, 1);
+		(*buffer)[i] = (*buffer)[j];
+		i++;
+		j++;
 	}
-	return (read_bytes);
+	(*buffer)[i] = '\0';
+	new_buffer = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	if (new_buffer == NULL)
+		return ;
+	i = 0;
+	while ((*buffer)[i])
+	{
+		new_buffer[i] = (*buffer)[i];
+		i++;
+	}
+	free(*buffer);
+	*buffer = new_buffer;
+}
+
+static int	handle_read_error(char **buffer, char *temp_buf)
+{
+	free(temp_buf);
+	free(*buffer);
+	*buffer = NULL;
+	return (-1);
+}
+
+static int	read_and_append(int fd, char **buffer)
+{
+	char	*temp_buf;
+	int		bytes_read;
+
+	temp_buf = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	if (temp_buf == NULL)
+		return (-1);
+	while (ft_strchr(*buffer, '\n') == NULL)
+	{
+		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
+		if (bytes_read == -1)
+			return (handle_read_error(buffer, temp_buf));
+		if (bytes_read == 0)
+			break ;
+		temp_buf[bytes_read] = '\0';
+		*buffer = ft_strjoin(*buffer, temp_buf);
+		if (*buffer == NULL)
+		{
+			free(temp_buf);
+			return (-1);
+		}
+	}
+	free(temp_buf);
+	return (0);
 }
 
 char	*get_next_line(int fd)
@@ -71,7 +107,7 @@ char	*get_next_line(int fd)
 	int			newline_index;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE  <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (buffer == NULL)
 	{
@@ -105,24 +141,29 @@ char	*get_next_line(int fd)
 > bytes_read: number of bytes read from the fd in each read operation.
 
 ======== Implementation ========
-> Checks if the fd is valid and if BUFFER_SIZE is greater than 0. If not,
-	returns NULL;
+> Checks if the fd is valid and if BUFFER_SIZE is greater than 0;
+
 > Initializes the static buffer 'buffer' if it's not already initialized,
 	allocating memory for it;
+
 > Calls the read_and_append function:
-	> Reads data from the fd into the temporary buffer 'temp_buf' until a
+	<> Reads data from the fd into the temporary buffer 'temp_buf' until a
 		\n character is encountered in the 'buffer';
-	> If an error occurs during reading or memory allocation,
-		handles the error and returns -1;
-	> Appends the data from 'temp_buf' to the end of 'buffer' using ft_strjoin;
+	<> The read function returns the number of bytes read, so if an error occurs
+		during reading or memory allocation, returns -1;
+	<> Appends the data from 'temp_buf' to the end of 'buffer' using ft_strjoin;
+
 > Checks if 'buffer' is empty or NULL after reading and appending data. If so,
 	frees the buffer and returns NULL;
-> Extracts a line from 'buffer' using the get_line_from_buffer function:
-	> Finds the index of the \n character in 'buffer';
-	> Allocates memory for 'line' and copies the characters from 'buffer'
+
+> Copies a line from 'buffer' using the get_line_from_buffer function:
+	<> Finds the index of the \n character in 'buffer';
+	<> Allocates memory for 'line' and copies the characters from 'buffer'
 		up to the \n character, if present;
+
 > Updates 'buffer' to remove the read line using the update_buffer function:
-	> Shifts the contents of 'buffer' to remove the read line and updates
+	<> Shifts the contents of 'buffer' to remove the read line and updates
 		'buffer' with the new content;
+
 > Returns the extracted line read from the fd.
 */

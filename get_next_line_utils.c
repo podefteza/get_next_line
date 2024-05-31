@@ -6,12 +6,13 @@
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:53:35 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/28 19:08:57 by carlos-j         ###   ########.fr       */
+/*   Updated: 2024/05/29 10:51:34 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+/* Calculates the length of string */
 int	ft_strlen(const char *str)
 {
 	int	len;
@@ -22,6 +23,8 @@ int	ft_strlen(const char *str)
 	return (len);
 }
 
+/* Allocates memory for an array of nmemb elements of size bytes each
+   and initializes all bytes in the allocated storage to zero */
 void	*ft_calloc(size_t nmemb, size_t size)
 {
 	void	*mem;
@@ -41,6 +44,7 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	return (mem);
 }
 
+/* Copies n bytes from memory area src to memory area dest */
 void	*ft_memcpy(void *dest, const void *src, size_t n)
 {
 	size_t	i;
@@ -56,6 +60,8 @@ void	*ft_memcpy(void *dest, const void *src, size_t n)
 	return (dest);
 }
 
+/* Allocates and returns a new string, which is the concatenation of
+	s1 and s2 */
 char	*ft_strjoin(char *s1, char *s2)
 {
 	int		len1;
@@ -73,6 +79,7 @@ char	*ft_strjoin(char *s1, char *s2)
 	return (new_str);
 }
 
+/* Locates the first occurrence of c in the string s */
 char	*ft_strchr(const char *s, int c)
 {
 	int	len;
