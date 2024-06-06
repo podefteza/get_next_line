@@ -1,8 +1,7 @@
 # Get Next Line - Reading a line from a fd is way too tedious
 
-This project will not only allow you to add a very convenient function to your collection,
-but it will also make you learn a highly interesting new concept in C programming: static
-variables.
+This project aims to implement a function in C that reads a line from a file descriptor. This function should handle various buffer sizes efficiently and manage memory properly to avoid leaks. It also must work seamlessly with both files and standard input.
+It’s a fundamental yet powerful utility to my collection of C functions. Through this project, I have also explored and implemented the concept of static variables, which are essential for maintaining state between function calls.
 
 **Score:** 125/100 ✅
 
