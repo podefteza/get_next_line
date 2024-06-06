@@ -6,7 +6,7 @@
 /*   By: carlos-j <carlos-j@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 16:53:37 by carlos-j          #+#    #+#             */
-/*   Updated: 2024/05/31 13:10:49 by carlos-j         ###   ########.fr       */
+/*   Updated: 2024/06/06 11:57:35 by carlos-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ static void	update_buffer(char **buffer, int newline_index)
 	*buffer = new_buffer;
 }
 
-static int	handle_read_error(char **buffer, char *temp_buf)
+static int	read_error(char **buffer, char *temp_buf)
 {
 	free(temp_buf);
 	free(*buffer);
@@ -86,7 +86,7 @@ static int	read_and_append(int fd, char **buffer)
 	{
 		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
 		if (bytes_read == -1)
-			return (handle_read_error(buffer, temp_buf));
+			return (read_error(buffer, temp_buf));
 		if (bytes_read == 0)
 			break ;
 		temp_buf[bytes_read] = '\0';
@@ -114,7 +114,6 @@ char	*get_next_line(int fd)
 		buffer = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
 		if (buffer == NULL)
 			return (NULL);
-		buffer[0] = '\0';
 	}
 	if (read_and_append(fd, &buffer) == -1)
 		return (NULL);
@@ -128,6 +127,40 @@ char	*get_next_line(int fd)
 	update_buffer(&buffer, newline_index);
 	return (line);
 }
+/*
+======== Remove to test... ========
+// To test, use:
+//$ cc -Wall -Wextra -Werror
+//	-D BUFFER_SIZE=1234
+//	get_next_line.c get_next_line_utils.c
+//	&& ./a.out <filename>
+
+#include <fcntl.h>
+#include <stdio.h>
+int main(int argc, char **argv)
+{
+    int fd;
+    char *line;
+
+    if (argc != 2)
+    {
+        printf("Usage: %s <filename>\n", argv[0]);
+        return (1);
+    }
+    fd = open(argv[1], O_RDONLY);
+    if (fd == -1)
+    {
+        perror("Error opening file");
+        return (1);
+    }
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        printf("%s", line);
+        free(line);
+    }
+    close(fd);
+    return (0);
+}*/
 
 /*
 ======== Variables ========
