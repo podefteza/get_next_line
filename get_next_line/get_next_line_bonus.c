@@ -103,11 +103,11 @@ static int	read_and_append(int fd, char **buffer)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer[1042];
+	static char	*buffer[1024];
 	int			newline_index;
 	char		*line;
 
-	if (fd < 0 || fd >= 1042 || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd >= 1024 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (buffer[fd] == NULL)
 	{
@@ -132,6 +132,6 @@ char	*get_next_line(int fd)
 > The bonus version let's the program work with multiple fds at the same time;
 > Instead of one static buffer for all fds, it uses an array of buffers, indexed
 	by the fd number. This way we can work on each fd separately;
-> We give it a size of 1042, the maximum number of open files simultaneously
+> We give it a size of 1024, the maximum number of open files simultaneously
 	per process in Linux;
 */
